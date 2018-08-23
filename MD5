@@ -1,6 +1,7 @@
-b2ff0a9afbd95e6b5aac6215eba677b6 *DESCRIPTION
+62287c267ab7f2cbf7ceee40b75948b4 *ChangeLog
+efea403ed5b005fc5b5e69a162a6bdd2 *DESCRIPTION
 23495ecc77670af2b644ebdc5638aa31 *NAMESPACE
-7488681a780bd14b2e97c5688788f52a *R/serialize.R
+5347b1ad4034e55406a4266edaf613bb *R/serialize.R
 6fee2264563dbdf8b6e6b7e2835a78dc *R/xmlrpc2.R
 3eaae373fc0bf40da8e2455aac359a21 *man/from_xmlrpc.Rd
 f78c82d5630133ce7585c213f137f3bb *man/rpc_serialize.Rd
