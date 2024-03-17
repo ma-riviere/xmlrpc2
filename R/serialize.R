@@ -8,6 +8,7 @@ rpc_typeof.raw <- function(x) "base64"
 rpc_typeof.POSIXt <- function(x) "dateTime.iso8601"
 rpc_typeof.POSIXct <- function(x) "dateTime.iso8601"
 rpc_typeof.Date <- function(x) "dateTime.iso8601"
+rpc_typeof.list <- function(x) "list"
 
 to_rpc <- function(x) UseMethod("to_rpc", x)
 to_rpc.default <- identity
@@ -88,15 +89,9 @@ rpc_serialize.list <- function(x, ...) {
     list_to_array(unname(x))
 }
 
-to_value <- function(x, type, cdata = FALSE) {
+to_value <- function(x, type) {
     value <- new_xml_node("value")
-    if (cdata) {
-        xml_add_child(value, type)
-        ty <- xml_children(value)[[1L]]
-        xml_add_child(ty, xml_cdata(x))    
-    } else {
-        xml_add_child(value, type, to_rpc(x))    
-    }
+    xml_add_child(value, type, to_rpc(x))
     value
 }
 
@@ -119,8 +114,7 @@ vec_to_array <- function(x, type) {
     value <- xml_children(root)[[1L]]
     data <- xml_children(xml_children(value)[[1L]])[[1L]]
     for ( i in seq_along(x) ) {
-        xml_add_child(data, 
-                      to_value(x[i], type, type == "string"))
+        xml_add_child(data, to_value(x[[i]], type))
     }
     value
 }
@@ -133,9 +127,8 @@ list_to_array <- function(x) {
     value <- xml_children(root)[[1L]]
     data <- xml_children(xml_children(value)[[1L]])[[1L]]
     for ( i in seq_along(x) ) {
-        type <- rpc_typeof(x[i])
-        xml_add_child(data, 
-                      to_value(x[i], type, type == "string"))
+        type <- rpc_typeof(x[[i]])
+        xml_add_child(data, to_value(x[[i]], type))
     }
     value
 }
