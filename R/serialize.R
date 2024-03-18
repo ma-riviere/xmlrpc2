@@ -1,19 +1,20 @@
 
-rpc_typeof <- function(x) UseMethod("rpc_typeof", x)
-rpc_typeof.logical <- function(x) "boolean"
-rpc_typeof.integer <- function(x) "i4"
-rpc_typeof.double <- function(x) "double"
-rpc_typeof.character <- function(x) "string"
-rpc_typeof.raw <- function(x) "base64"
-rpc_typeof.POSIXt <- function(x) "dateTime.iso8601"
-rpc_typeof.POSIXct <- function(x) "dateTime.iso8601"
-rpc_typeof.Date <- function(x) "dateTime.iso8601"
-rpc_typeof.list <- function(x) "list"
+rpc_typeof <- \(x) UseMethod("rpc_typeof", x)
+rpc_typeof.logical <- \(x) "boolean"
+rpc_typeof.integer <- \(x) "i4"
+rpc_typeof.double <- \(x) "double"
+rpc_typeof.character <- \(x) "string"
+rpc_typeof.raw <- \(x) "base64"
+rpc_typeof.POSIXt <- \(x) "dateTime.iso8601"
+rpc_typeof.POSIXct <- \(x) "dateTime.iso8601"
+rpc_typeof.Date <- \(x) "dateTime.iso8601"
+rpc_typeof.list <- \(x) "list"
 
-to_rpc <- function(x) UseMethod("to_rpc", x)
+to_rpc <- \(x) UseMethod("to_rpc", x)
 to_rpc.default <- identity
-to_rpc.Date <- function(x) format(x, "%Y%m%dT%H:%H:%S")
-to_rpc.POSIXt <- function(x) format(as.POSIXct(x), "%Y%m%dT%H:%H:%S")
+to_rpc.logical <- \(x) as.integer(x)
+to_rpc.Date <- \(x) format(x, "%Y%m%dT%H:%H:%S")
+to_rpc.POSIXt <- \(x) format(as.POSIXct(x), "%Y%m%dT%H:%H:%S")
 
 #  -----------------------------------------------------------
 #  rpc_serialize 
@@ -90,9 +91,8 @@ rpc_serialize.list <- function(x, ...) {
 }
 
 to_value <- function(x, type) {
-    value <- new_xml_node("value")
-    xml_add_child(value, type, to_rpc(x))
-    value
+    if ("list" %in% type) list_to_array(x)
+    else xml_add_child(new_xml_node("value"), type, to_rpc(x))
 }
 
 new_xml_node <- function(key, value = NULL) {
