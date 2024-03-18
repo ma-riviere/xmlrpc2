@@ -121,8 +121,6 @@ vec_to_array <- function(x, type) {
 
 ## Only supports non nested lists
 list_to_array <- function(x) {
-    if ( any(lengths(x) > 1) ) 
-        stop("nested lists are not supported!")
     root <- new_xml_array()
     value <- xml_children(root)[[1L]]
     data <- xml_children(xml_children(value)[[1L]])[[1L]]
