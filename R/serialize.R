@@ -142,8 +142,7 @@ list_to_struct <- function(x) {
   for (i in seq_along(x)) {
     member <- xml_add_child(struct, new_xml_node("member"))
     xml_add_child(member, new_xml_node("name", names(x)[[i]]))
-    member_value <- xml_add_child(member, new_xml_node("value"))
-    xml_add_child(member_value, rpc_typeof(x[[i]]), to_rpc(x[[i]]))
+    xml_add_child(member, to_value(x[[i]], rpc_typeof(x[[i]])))
   }
   value
 }
