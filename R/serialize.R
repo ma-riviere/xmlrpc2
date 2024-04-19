@@ -87,12 +87,13 @@ rpc_serialize.POSIXt <- rpc_serialize_vector
 #' @noRd
 #' @export
 rpc_serialize.list <- function(x, ...) {
-    list_to_array(unname(x))
+  if (!is.null(names(x))) list_to_struct(x) 
+  else list_to_array(x)
 }
 
 to_value <- function(x, type) {
-    if ("list" %in% type) list_to_array(x)
-    else xml_add_child(new_xml_node("value"), type, to_rpc(x))
+  if ("list" %in% type) rpc_serialize.list(x)
+  else xml_add_child(new_xml_node("value"), type, to_rpc(x))
 }
 
 new_xml_node <- function(key, value = NULL) {
@@ -106,29 +107,45 @@ new_xml_node <- function(key, value = NULL) {
 }
 
 new_xml_array <- function() {
-    read_xml("<root><value><array><data></data></array></value></root>")    
+  read_xml("<root><value><array><data></data></array></value></root>")
+}
+
+new_xml_struct <- function() {
+  read_xml("<root><value><struct></struct></value></root>")
 }
 
 vec_to_array <- function(x, type) {
-    root <- new_xml_array()
-    value <- xml_children(root)[[1L]]
-    data <- xml_children(xml_children(value)[[1L]])[[1L]]
-    for ( i in seq_along(x) ) {
-        xml_add_child(data, to_value(x[[i]], type))
-    }
-    value
+  root <- new_xml_array()
+  value <- xml_children(root)[[1L]]
+  data <- xml_children(xml_children(value)[[1L]])[[1L]]
+  for (i in seq_along(x)) {
+    xml_add_child(data, to_value(x[[i]], type))
+  }
+  value
 }
 
-## Only supports non nested lists
 list_to_array <- function(x) {
-    root <- new_xml_array()
-    value <- xml_children(root)[[1L]]
-    data <- xml_children(xml_children(value)[[1L]])[[1L]]
-    for ( i in seq_along(x) ) {
-        type <- rpc_typeof(x[[i]])
-        xml_add_child(data, to_value(x[[i]], type))
-    }
-    value
+  root <- new_xml_array()
+  value <- xml_children(root)[[1L]]
+  data <- xml_children(xml_children(value)[[1L]])[[1L]]
+  for (i in seq_along(x)) {
+    type <- rpc_typeof(x[[i]])
+    xml_add_child(data, to_value(x[[i]], type))
+  }
+  value
+}
+
+list_to_struct <- function(x) {
+  root <- new_xml_struct()
+  value <- xml_children(root)[[1L]]
+  struct <- xml_children(value)[[1L]]
+  for (i in seq_along(x)) {
+    member <- xml_add_child(struct, new_xml_node("member"))
+    xml_add_child(member, new_xml_node("name", names(x)[[i]]))
+    member_value <- xml_add_child(member, new_xml_node("value"))
+    xml_add_child(member_value, rpc_typeof(x[[i]]), to_rpc(x[[i]]))
+  }
+  value
 }
 
 #  -----------------------------------------------------------
